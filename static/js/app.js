@@ -6,8 +6,7 @@ console.log(url)
   function init (){    
     d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json").then((sampledata)=> {
         console.log(sampledata);
-    sample="940"
-    createBarchart(sample)
+    
     //2. Create a horizontal bar chart with a dropdown menu to display the top 10 OTUs found in that individual.
 //Use sample_values as the values for the bar chart.(xvalues)
 //Use otu_ids as the labels for the bar chart.(yvalues)
@@ -17,46 +16,51 @@ console.log(url)
 //function  createBarchart(sample_values,otu_ids,otu_labels){
 
 
-      });
+      
       //create dropdown menu
     let dropdownMenu = d3.select("#selDataset");
     let names = sampledata.names;
     
 
-    names.foreach(function(id){
+    names.forEach(function(id){
         dropdownMenu.append("option").text(id).property("values");
 
 
     });
-chartvalues(names[0]);
-metadata(names[0]);
+charts(names[0]);
+buildmetadata(names[0]);
 
 
 
-
+});
   }
 
 
-     d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json").then((sampledata)=> {
-//console.log(sample)
-//console.log(sampledata);
-let samples = sampledata.samples[0];
-//console.log(samples)
-let otu_ids= id[0].otu_ids;
-//console.log(otu_ids)
-let sample_values = id[0].sample_values;
-let otu_labels =id[0].otu_labels;
+    
 
-  function charts( sample_values,otu_labels,otu_ids ){
-    d3.json(url).then(function(sampledata){
+  function charts(name){console.log(name)
+
+
+    d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json").then((sampledata)=> {
+        //console.log(sample)
+        //console.log(sampledata);
+        let samples = sampledata.samples;
+        let subject = samples.filter(values => values.id==name )
+        console.log(samples)
+        let otu_ids= subject[0].otu_ids;
+        console.log(otu_ids)
+        console.log(subject[0])
+        let sample_values = subject[0].sample_values;
+        let otu_labels = subject[0].otu_labels;
 
 //bar chart
         let data =[{
             type:'bar',
-            x:sample_values,
-            y:otu_ids,
+            x:sample_values.slice(0,10),
+            y:otu_ids.slice(0,10).map(otu => `otu's:${otu}`),
             text:otu_labels,
             orientation:'h',
+        
         }];
 
 
@@ -73,7 +77,7 @@ let otu_labels =id[0].otu_labels;
                     }
             
             
-            
+                
                 }];
 
 
@@ -103,41 +107,44 @@ let otu_labels =id[0].otu_labels;
 //display charts
     Plotly.newPlot('bar',data,chart_format);
     Plotly.newPlot('bubble',bubble_data,bubble_format);
+    })
+  
+}
 
-    init();
+  function buildmetadata(sample){console.log(sample)
+    d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json").then((data) => { 
+    let metadata = data.metadata;
+//filter data
+    let resultArray = metadata.filter(sampleObj => sampleObj.id == sample);
+      
+        singlesample=resultArray[0]
+       
 
+        //return item.id = singlesample;
+    
+        // Getting a reference to the box on the page with the id property set to `Demographic Info`.
 
+let metadataPanel = d3.select("#sample-metadata");
+metadataPanel.html("");
 
+for (key in singlesample) {
+    // When appending to the demoInfo Box set the key to be in upper case.
+    metadataPanel.append("h6").text(`${key.toUpperCase()}: ${singlesample[key]}`);
+  };
+})
+};
 
+    function optionChanged(value) {
+        
+    
+        
+            buildmetadata(value) 
+      
+        
+        charts(value)
+    console.log(value)
+};
+       
 
-//3.Create a bubble chart that displays each sample.
-//Use otu_ids for the x values.
-
-//Use sample_values for the y values.
-
-//Use sample_values for the marker size.
-
-//Use otu_ids for the marker colors.
-
-//Use otu_labels for the text values.
-
-    //function optionChanged(value) {
-       // d3.json(url).then(function(sampledata) { 
-
-       // var metadata = sampledata.metadata.filter(data => data.id ==value);
-            //console.log(metadata);
-       // var samples =sampledata.samples.filter(data =>data.id ==value);
-            //console.log(samples);
-        //createBarchart(samples[0]
-
-       // }
-       // )
-    //}
-//4. Display the sample metadata, i.e., an individual's demographic information.
-
-//5.Display each key-value pair from the metadata JSON object somewhere on the page.
-
-//6. Update all the plots when a new sample
-
-
+init();
     
